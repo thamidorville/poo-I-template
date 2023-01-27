@@ -84,9 +84,9 @@ app.post("/users", async (req: Request, res: Response) => {
             throw new Error("'password' deve ser string")
         }
 
-        const [ user ]: TUserDB[] | undefined[] = await db("users").where({ id })
+        const [ userDBExists ]: TUserDB[] | undefined[] = await db("users").where({ id })
 
-        if (user) {
+        if (userDBExists) {
             res.status(400)
             throw new Error("'id' já existe")
         }
