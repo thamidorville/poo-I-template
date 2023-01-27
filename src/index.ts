@@ -148,7 +148,7 @@ app.get("/accounts/:id/balance", async (req: Request, res: Response) => {
             throw new Error("'id' não encontrado")
         }
 
-        res.status(200).send({ balance: account.balance })
+        res.status(200).send({ balance: accountDB.balance })
     } catch (error) {
         console.log(error)
 
@@ -220,16 +220,17 @@ app.put("/accounts/:id/balance", async (req: Request, res: Response) => {
             throw new Error("'value' deve ser number")
         }
 
-        const [ accountDBExists ]: TAccountDB[] | undefined[] = await db("accounts").where({ id })
+        const [ accountDB ]: TAccountDB[] | undefined[] = await db("accounts").where({ id })
 
-        if (!accountDBExists) {
+        if (!accountDB) {
             res.status(404)
             throw new Error("'id' não encontrado")
         }
 
-        await db("accounts").update({ balance: accountDB.balance + value }).where({ id })
-        const [ accountDB ]: TAccountDB[] = await db("accounts").where({ id })
+        accountDB.balance += value
 
+        await db("accounts").update({ balance: accountDB.balance }).where({ id })
+        
         res.status(200).send(accountDB)
     } catch (error) {
         console.log(error)
