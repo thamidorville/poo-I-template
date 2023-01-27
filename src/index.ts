@@ -34,15 +34,13 @@ app.get("/users", async (req: Request, res: Response) => {
     try {
         const q = req.query.q
 
-        let result
-
         if (q) {
-            result = await db("users").where("name", "LIKE", `%${q}%`) as TUserDB[]
+            const result: TUserDB[] = await db("users").where("name", "LIKE", `%${q}%`)
+            res.status(200).send(result)
         } else {
-            result = await db("users") as TUserDB[]
+            const result: TUserDB[] = await db("users")
+            res.status(200).send(result)
         }
-
-        res.status(200).send(result)
     } catch (error) {
         console.log(error)
 
