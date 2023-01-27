@@ -99,8 +99,9 @@ app.post("/users", async (req: Request, res: Response) => {
         }
 
         await db("users").insert(newUser)
+        const [ userDB ]: TUserDB[] = await db("users").where({ id })
 
-        res.status(201).end()
+        res.status(201).send(userDB)
     } catch (error) {
         console.log(error)
 
