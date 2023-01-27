@@ -119,9 +119,9 @@ app.post("/users", async (req: Request, res: Response) => {
 
 app.get("/accounts", async (req: Request, res: Response) => {
     try {
-        const result: TAccountDB[] = await db("accounts")
+        const accountsDB: TAccountDB[] = await db("accounts")
 
-        res.status(200).send(result)
+        res.status(200).send(accountsDB)
     } catch (error) {
         console.log(error)
 
@@ -141,9 +141,9 @@ app.get("/accounts/:id/balance", async (req: Request, res: Response) => {
     try {
         const id = req.params.id
 
-        const [ account ]: TAccountDB[] | undefined[] = await db("accounts").where({ id })
+        const [ accountDB ]: TAccountDB[] | undefined[] = await db("accounts").where({ id })
 
-        if (!account) {
+        if (!accountDB) {
             res.status(404)
             throw new Error("'id' não encontrado")
         }
@@ -179,9 +179,9 @@ app.post("/accounts", async (req: Request, res: Response) => {
             throw new Error("'ownerId' deve ser string")
         }
 
-        const [ account ]: TAccountDB[] | undefined[] = await db("accounts").where({ id })
+        const [ accountDBExists ]: TAccountDB[] | undefined[] = await db("accounts").where({ id })
 
-        if (account) {
+        if (accountDBExists) {
             res.status(400)
             throw new Error("'id' já existe")
         }
@@ -192,8 +192,9 @@ app.post("/accounts", async (req: Request, res: Response) => {
         }
 
         await db("accounts").insert(newAccount)
+        const [ accountDB ]: TAccountDB[] = await db("accounts").where({ id })
 
-        res.status(201).end()
+        res.status(201).send(accountDB)
     } catch (error) {
         console.log(error)
 
@@ -219,18 +220,17 @@ app.put("/accounts/:id/balance", async (req: Request, res: Response) => {
             throw new Error("'value' deve ser number")
         }
 
-        const [ account ]: TAccountDB[] | undefined[] = await db("accounts").where({ id })
+        const [ accountDBExists ]: TAccountDB[] | undefined[] = await db("accounts").where({ id })
 
-        if (!account) {
+        if (!accountDBExists) {
             res.status(404)
             throw new Error("'id' não encontrado")
         }
 
-        account.balance += value
+        await db("accounts").update({ balance: accountDB.balance + value }).where({ id })
+        const [ accountDB ]: TAccountDB[] = await db("accounts").where({ id })
 
-        await db("accounts").update({ balance: account.balance }).where({ id })
-
-        res.status(200).end()
+        res.status(200).send(accountDB)
     } catch (error) {
         console.log(error)
 
